@@ -77,9 +77,17 @@ local Library = {
     Toggles = Toggles;
     Options = Options;
 };
+pcall(function()
+    Library.DevicePlatform = InputService:GetPlatform();
+end)
 
-pcall(function() Library.DevicePlatform = InputService:GetPlatform(); end); -- For safety so the UI library doesn't error.
-Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS);
+Library.IsMobile = (
+    InputService.TouchEnabled or
+    Library.DevicePlatform == Enum.Platform.Android or
+    Library.DevicePlatform == Enum.Platform.IOS or
+    Library.DevicePlatform == Enum.Platform.OSX or
+    Library.DevicePlatform == Enum.Platform.UWP
+)
 
 if Library.IsMobile then
     Library.MinSize = Vector2.new(550, 400); -- Make UI little bit smaller.
