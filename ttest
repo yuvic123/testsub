@@ -67,7 +67,7 @@ local Library = {
     CantDragForced = false;
 
     NotifySide = "Left";
-    ShowCustomCursor = true; 
+    ShowCustomCursor = false; 
     ShowToggleFrameInKeybinds = true;
 
     VideoLink = "";
