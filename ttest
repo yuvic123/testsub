@@ -3401,19 +3401,34 @@ function Library:SetWatermark(Text)
 
     Library.WatermarkText.Text = Text;
 end;
-
-function Library:Notify(Text, Time, SoundId, Volume)
+function Library:Notify(Text, Time, SoundId, Volume, TextColor)
     local Side = string.lower(Library.NotifySide);
     if Side == "right" then
-        Library:RightNotify(Text, Time, SoundId, Volume);
+        Library:RightNotify(Text, Time, SoundId, Volume, TextColor);
     else
-        Library:LeftNotify(Text, Time, SoundId, Volume);
+        Library:LeftNotify(Text, Time, SoundId, Volume, TextColor);
     end
 end;
 
-function Library:LeftNotify(Text, Time, SoundId, Volume)
-    local XSize, YSize = Library:GetTextBounds(Text, Library.Font, 14);
+local function getColorFromDamage(textColor, text)
+    -- Auto color detection: green (low dmg) → yellow → red (high dmg)
+    if textColor then return textColor end
 
+    local damage = tonumber(string.match(text, "%-?(%d+)"))
+    if damage then
+        if damage < 15 then
+            return Color3.fromRGB(0, 255, 0) -- green
+        elseif damage < 35 then
+            return Color3.fromRGB(255, 200, 0) -- yellow
+        else
+            return Color3.fromRGB(255, 50, 50) -- red
+        end
+    end
+    return Color3.fromRGB(255, 255, 255)
+end
+
+function Library:LeftNotify(Text, Time, SoundId, Volume, TextColor)
+    local XSize, YSize = Library:GetTextBounds(Text, Library.Font, 14);
     YSize = YSize + 7
 
     local NotifyOuter = Library:Create('Frame', {
@@ -3475,6 +3490,9 @@ function Library:LeftNotify(Text, Time, SoundId, Volume)
         Parent = InnerFrame;
     });
 
+    -- Color logic
+    NotifyLabel.TextColor3 = getColorFromDamage(TextColor, Text)
+
     local SideColor = Library:Create('Frame', {
         BackgroundColor3 = Library.AccentColor;
         BorderSizePixel = 0;
@@ -3507,16 +3525,13 @@ function Library:LeftNotify(Text, Time, SoundId, Volume)
         end
 
         pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true);
-
         task.wait(0.4);
-
         NotifyOuter:Destroy();
     end);
 end;
 
-function Library:RightNotify(Text, Time, SoundId, Volume)
+function Library:RightNotify(Text, Time, SoundId, Volume, TextColor)
     local XSize, YSize = Library:GetTextBounds(Text, Library.Font, 14);
-
     YSize = YSize + 7
 
     local NotifyOuter = Library:Create('Frame', {
@@ -3579,6 +3594,9 @@ function Library:RightNotify(Text, Time, SoundId, Volume)
         Parent = InnerFrame;
     });
 
+    -- Color logic
+    NotifyLabel.TextColor3 = getColorFromDamage(TextColor, Text)
+
     local SideColor = Library:Create('Frame', {
         AnchorPoint = Vector2.new(1, 0);
         BackgroundColor3 = Library.AccentColor;
@@ -3612,12 +3630,11 @@ function Library:RightNotify(Text, Time, SoundId, Volume)
         end
 
         pcall(NotifyOuter.TweenSize, NotifyOuter, UDim2.new(0, 0, 0, YSize), 'Out', 'Quad', 0.4, true);
-
         task.wait(0.4);
-
         NotifyOuter:Destroy();
     end);
 end;
+
 
 function Library:CreateWindow(...)
     local Arguments = { ... }
