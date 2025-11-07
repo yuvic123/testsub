@@ -3591,6 +3591,7 @@ function Library:RightNotify(Text, Time, SoundId, Volume, TextColor)
         TextXAlignment = Enum.TextXAlignment.Right;
         TextSize = 14;
         ZIndex = 103;
+        RichText = true;
         Parent = InnerFrame;
     });
 
